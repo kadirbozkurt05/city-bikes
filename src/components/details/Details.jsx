@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { doc, getFirestore } from "firebase/firestore";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 import firebaseConfig from "../../../firebaseConfig";
 import {
   collection,
@@ -35,44 +35,50 @@ export default function Details() {
   }, [auth]);
 
   async function getFavoriteList() {
-    const querySnapshot = await getDocs(collection(db, user.uid));
+    const userDocRef = doc(db, user.uid, "1");
 
-    querySnapshot.forEach((doc) => {
-      console.log(`${doc.id} => ${doc.data().favoriteList}`);
+    try {
+      const docSnapshot = await getDoc(userDocRef);
 
-      favoriteList = [...doc.data().favoriteList];
-      setIsFavorite(favoriteList.includes(id) ? true : false);
-      setImgSrc(isFavorite ? "/heart-solid.svg" : "/heart-regular.svg");
-    });
+      if (docSnapshot.exists()) {
+        const favoriteListData = docSnapshot.data().favoriteList;
+        console.log(`${userDocRef.id} => ${favoriteListData}`);
+
+        favoriteList = [...favoriteListData];
+        setIsFavorite(favoriteList.includes(id) ? true : false);
+        setImgSrc(isFavorite ? "/heart-solid.svg" : "/heart-regular.svg");
+      } else {
+        console.log("Document does not exist");
+      }
+    } catch (e) {
+      console.error("Error getting document: ", e);
+    }
   }
 
   getFavoriteList();
 
   async function handleAddFavorite() {
-    const userDocRef = doc(db, user.uid, "1");
+    const userCollectionRef = collection(db, user.uid);
+    const userDocRef = doc(userCollectionRef, "1");
 
-    const docSnapshot = await getDoc(userDocRef);
+    try {
+      const docSnapshot = await getDoc(userDocRef);
 
-    if (docSnapshot.exists()) {
-      try {
+      if (docSnapshot.exists()) {
         await updateDoc(userDocRef, {
           favoriteList: arrayUnion(id),
         });
         console.log("Document updated successfully!");
         setImgSrc("/heart-solid.svg");
-      } catch (e) {
-        console.error("Error updating document: ", e);
-      }
-    } else {
-      try {
-        await addDoc(collection(db, user.uid), {
+      } else {
+        await setDoc(userDocRef, {
           favoriteList: [id],
         });
         console.log("Document created with favoriteList: ", [id]);
         setImgSrc("/heart-solid.svg");
-      } catch (e) {
-        console.error("Error creating document: ", e);
       }
+    } catch (e) {
+      console.error("Error updating/creating document: ", e);
     }
   }
 
