@@ -76,7 +76,7 @@ export default function Details() {
     }
   }
 
-  const url = `http://api.citybik.es/v2/networks/${id}`;
+  const url = `https://api.citybik.es/v2/networks/${id}`;
   const { data: network, loading, error } = useFetch(url);
 
   if (loading) {
