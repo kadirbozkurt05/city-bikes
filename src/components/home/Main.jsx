@@ -7,7 +7,7 @@ export default function Main() {
   const [city, setCity] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
-  const url = "http://api.citybik.es/v2/networks/";
+  const url = "https://api.citybik.es/v2/networks/";
 
   const { data, loading, error } = useFetch(url);
 
