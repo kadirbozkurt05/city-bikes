@@ -21,7 +21,7 @@ export default function Favorites() {
   const [user, setUser] = useState(auth.currentUser);
   const [favoriteNetworks, setFavoriteNetworks] = useState([]);
 
-  const url = "http://api.citybik.es/v2/networks/";
+  const url = "https://api.citybik.es/v2/networks/";
 
   let favoriteList = [];
 
